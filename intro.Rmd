@@ -1,0 +1,484 @@
+---
+title: "Tutorial"
+author: "Terrance"
+output: 
+  learnr::tutorial:
+     css: reminders.css
+     progressive_reveal: true
+     allow_skip: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE,
+                      error = TRUE)
+
+tutorial_options(exercise.eval = T,
+                 exercise.timelimit = 70,
+                 )
+mpg <- ggplot2::mpg
+write_csv(mtcars, "file.csv")
+xfun::embed_file("file.csv")
+```
+
+
+## Read and write
+
+### readr
+
+### Exercise with Code
+
+Now call a function that reads a csv file `file.csv` and call it `data`, call another function that writes a csv file above as `final`:
+
+```{r csv, exercise=TRUE}
+
+```
+
+
+```{r csv-hint, exercise.eval=TRUE}
+?readr
+```
+
+
+
+```{r csv-solution, exercise.solution_eval=FALSE}
+data <- readr::read_csv("file.csv")
+
+readr::write_csv(data, "final.csv")
+```
+
+###
+```{r include=FALSE}
+library(rvest)
+```
+
+
+## Dplyr verbs
+
+###   select
+
+subsets all the mentioned columns
+
+```{r select, exercise=TRUE}
+#select all the columns except "hwy", "class" 
+mpg |> 
+  select()
+```
+
+```{r select-solution, exercise.reveal_solution=FALSE}
+#select all the columns except "hwy", "class" 
+mpg |> 
+  select(-c(hwy, class))
+```
+
+
+### filter
+
+Its used to subset rows that evaluate to true in a condition supplied.
+
+```{r filter, exercise=TRUE}
+
+#change the filter to select cty greater than 14
+mpg |> 
+  filter(cty<12) |> 
+  head()
+
+```
+```{r filter-solution, exercise.reveal_solution=FALSE}
+#change the filter to select cty greater than 14
+mpg |> 
+  filter(cty>14) |> 
+  head()
+```
+
+
+### arrange
+
+Sorts the data either ascending or descending.
+```{r arrange, exercise=TRUE}
+
+#change the sort order to ascending based on hwy variable
+mpg |> 
+  arrange(desc(displ))
+```
+
+```{r arrange-solution, exercise.solution_eval=FALSE}
+
+#change the sort order to ascending based on hwy variable
+mpg |> 
+  arrange(displ)
+```
+
+###   distinct
+
+Its used to subset unique rows of a specified column
+
+```{r distinct, exercise=TRUE}
+# List all the distinct manufacturers in the mpg dataset.
+
+mpg |> 
+  distinct()
+```
+
+```{r distinct-solution,exercise.reveal_solution=FALSE}
+#list all the distinct manufacturers in the mpg dataset
+mpg |> 
+  distinct(manufacturer)
+```
+
+###   group_by
+
+Commonly used in grouped data operations, where operations are performed based on categories(groups).
+
+```{r group_by, exercise=TRUE}
+# group the mpg dataset based on 'class ' variable
+
+mpg |> 
+  group_by()
+```
+
+```{r group_by-solution,exercise.reveal_solution=FALSE}
+# group the mpg dataset based on 'class ' variable
+
+mpg |> 
+  group_by(class)
+```
+
+**Its time now to nest the verbs you have learnt above with more advance ones.**
+
+### mutate & transmute
+Mutate will add a column and preserve the existing ones while transmute adds a column and drops the others.
+
+```{r mutate_transmute, exercise=TRUE}
+#select **cty** variable and square it to obtain cty2.
+
+## use mutate
+mpg |> 
+  select(cty) |> 
+  ...
+
+## use transmute
+
+mpg |> 
+  select(cty) |> 
+  ...
+```
+
+
+
+```{r mutate_transmute-solution, exercise.solution_eval=FALSE}
+#select **cty** variable and square it to obtain cty2.
+
+## use mutate
+mpg |> 
+  select(cty) |> 
+  mutate(cty2=cty^2)
+
+## use transmute
+
+mpg |> 
+  select(cty) |> 
+  transmute(cty2=cty^2)
+```
+
+###   Summari(z|s)e
+summari(z|s)e creates a new data frame which will contain one column for each grouping variable and one column for each of the summary statistics that you have specified.
+
+Just think of group summary|ies!
+Under the hood summarise behaves like mutate.
+
+
+```{r summarize, exercise=TRUE}
+#select the cyl,class and cty variables,group by cyl and class, then report the mean, sd of the new data
+
+mpg |> 
+  select() |> 
+  group_by() |> 
+  summarise()
+```
+
+```{r summarize-solution, exercise.solution_eval=FALSE}
+#select the class and cty variables,group by class, then report the mean, sd and count of the new data
+
+mpg |> 
+  select(cyl, cty) |> 
+  group_by(cyl) |> 
+  summarise(mean=mean(cty),
+            std=sd(cty),
+            count=n())
+```
+
+
+## Awesome **ggplot2** 
+
+### Foundation
+
+
+
+```{r foundation}
+quiz(
+  question(
+"_which of the following are the key building blocks of a visulization usning the ggplot()_?",
+    answer("Data", correct = TRUE),
+    answer("facets, labs and themes"),
+    answer("aesthetics", correct = TRUE),
+    answer("geometry layers", correct = TRUE),
+    allow_retry = TRUE
+  
+)
+)
+```
+
+**::: foundation-hint Graphing template
+ggplot(data = <DATA>) +
+<GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+:::**
+
+
+
+### aesthetics
+
+Each geom function expects a mapping argument which dictates how variables in the supplied dataset are mapped to visual properties.
+```{r include=FALSE, echo=FALSE}
+data <- readr::read_csv("file.csv")
+
+data <- data |> 
+  mutate(cyl=as_factor(cyl),
+         vs=as_factor(vs),
+         am=as_factor(am),
+         gear=as_factor(gear),
+         carb=as_factor(carb))
+```
+
+
+```{r aes,exercise=TRUE}
+#add **drat** variable as the x and **wt** as y aesthetics
+
+data |> 
+  ggplot()
+```
+
+
+```{r aes-solution,exercise.soultion_eval=FALSE}
+#add **drat** variable as the x and **wt** as y aesthetics
+
+data |> 
+  ggplot(aes(x=drat, y=wt))
+```
+
+A part from `x` and `y` aesthetics, there are others like; `color` and `fill` which can be used with other geometries.
+
+### Geometry aka _geom_._
+
+Now add geometry layers on our previous template.
+
+```{r geom_point, exercise=TRUE}
+#add geometry layer to make a scatter plot
+data |> 
+  ggplot(aes(x=drat, y=wt))+
+  geom_.()
+
+```
+
+```{r geom_point-solution, exercise.solution_eval=FALSE}
+#add geometry layer to make a scatter plot
+data |> 
+  ggplot(aes(x=drat, y=wt))+
+  geom_point()
+
+```
+
+
+```{r geom_bar, exercise=TRUE}
+#add geometry layer to make a bar plot of gears
+data |> 
+  ggplot(aes(x))+
+  geom_.()
+
+
+```
+
+```{r geom_bar-solution, exercise.solution_eval=FALSE}
+#add geometry layer to make a bar plot of gears
+data |> 
+  ggplot(aes(x=gear))+
+  geom_bar()
+
+```
+
+```{r geom_point2, exercise=TRUE}
+#add geometry layer to make a point plot based on mpg,qsec and vs 
+data |> 
+  ggplot(aes(x,y))+
+  geom_.()
+
+```
+
+```{r geom_point2-solution, exercise.solution_eval=FALSE}
+#add geometry layer to make a point based on mpg,qsec and vs 
+data |> 
+  ggplot(aes(x=mpg, y=qsec, color=vs))+
+  geom_point()
+
+```
+
+### Facets
+
+Whenever you get to a point you still need an extra way of representing/categorizing your visual output, think of facets. 
+Say you have exhausted the shape, size, color (or simply want another dimension) facets come in handy.
+
+
+
+```{r facet_wrap, exercise=TRUE}
+#add geometry layer to make a point plot based on mpg,disp and wrap them according to am
+data |> 
+  ggplot(aes(x,y))+
+  geom_.()+
+  facet_wrap()
+
+```
+
+```{r facet_wrap-solution, exercise.solution_eval=FALSE}
+#add geometry layer to make a point plot based on mpg,disp and wrap them according to am
+data |> 
+  ggplot(aes(mpg, disp))+
+  geom_point()+
+  facet_wrap(~am)
+
+```
+
+```{r facet_grid, exercise=TRUE}
+#add geometry layer to make a point plot based on mpg,disp and wrap them according to am and gear
+data |> 
+  ggplot(aes(x,y))+
+  geom_.()+
+  facet_wrap()
+
+```
+
+```{r facet_grid-solution, exercise.solution_eval=FALSE}
+#add geometry layer to make a point plot based on mpg,disp and wrap them according to am and gear
+data |> 
+  ggplot(aes(mpg, disp))+
+  geom_point()+
+  facet_wrap(am~gear)
+
+```
+
+### Themes
+Themes are a powerful way to customize the non-data components of your plots: i.e. titles, labels, fonts, background, gridlines, and legends.
+
+Well lets just cover titles, labels, fonts.
+
+
+```{r themes, exercise=TRUE}
+#add a suitable title, labels, and fonts to your like of the following code
+data |> 
+  ggplot(aes(mpg, disp))+
+  geom_point()
+```
+
+```{r themes-solution, exercise.solution_eval=FALSE}
+#add a suitable title, labels, and fonts to your like of the following code
+#example
+data |> 
+  ggplot(aes(mpg, disp))+
+  geom_point(color="green")+
+  labs(
+    x="miles per gallon",
+    y="displacement",
+    title = "A SCATTERPLOT OF MILES PER GALLON \nAGAINST DIPLACEMENT")+
+  theme(title= element_text(size = 12, colour = "red", face ="bold")
+        )
+```
+
+## strings with stringr
+
+```{r strng}
+text1 <- c("Theoretical framework for Statistical analysis
+
+In the early years, Eagly and Chaiken (1993) categorised attitude in three components of cognitive, affective, and a behavioural domain, also known as the tripartite model. A cognitive component presents knowledge about the object; the affective component presents feelings or beliefs attributes and behaviour component comprises of a tendency towards action-behaviour component (Reid, 2006). Hence, if a person gains some knowledge about an object and develop feelings or form beliefs, it triggers his/her behaviour towards that object. Based on this model, Van Aalderen-Smeets et al. (2012) developed a very comprehensive widely accepted theoretical framework for the construct of primary teachers’ attitudes toward (the teaching of) science and invented DAS instrument (Dimensions of Attitudes Toward Science)")
+
+text2 <- c(' A conceptual framework for DAS (Dimensions of attitudes towards science) developed by Van Aalderen-Smeets, van der Molen & Asma (2012)
+	Notably, instead of considering behaviour and behaviour intention as the third construct of the tripartite model, this framework has considered it as outcomes of overall subdimensions of attitudes. It has considered perceived control as the third dimension of the model, which derives from the theory of planned behaviour (Ajzen, 1991). According to Simonson and Maushak (1996), ‘When behaviours are more difficult to execute, a person needs to take control over needed resources in order to act’ (p.994). Hence, in this theoretical frame, control counts as an essential factor impacting the attitudes of a person.')
+
+text3 <- c('	Within the field of integrated STEM education, research on teachers’ attitudes is relatively scarce. Al Salami et al. (2017) measured teachers’ attitudes toward interdisciplinary teaching and teamwork in the STEM teaching context. However, there was no explanation of the specific sub-dimensions of the attitude construct used as well as no conceptual definition of the term ‘interdisciplinary STEM’ implied. Also, Mobley (2015) developed an instrument to measure teachers’ attitudes to teach science in an integrated STEM framework; however, teachers’ self- efficacy was the only subdimension of attitudes measured. Besides, Keles, Kiremit and Aktamıs (2017) developed an attitude scale for STEM and STEM sub-titles, which measured pre-service teachers’ attitudes towards each STEM subject without taking into account’ integrated STEM concept’ and overall dimensions of attitudes. Although the abundance of literature advocating a shift in teaching practices towards student-centeredness and integrated STEM approaches, the development of evaluative frameworks and instruments have been a challenge (Linn and Gonlund, 2000), especially considering constant evolving concepts in the STEM education context.')
+```
+
+### str_c
+```{r str_c, exercise=TRUE}
+#join text1, text2 and text3 and call it text
+
+
+```
+
+```{r str_c-solution, exercise.solution_eval=FALSE}
+text=str_c(text1, text2, text3)
+text
+```
+
+
+
+### str_count
+
+```{r str_count, exercise=TRUE, eval="str_split-solution"}
+#count how many times the words science, model and data appears in text.
+
+
+```
+
+```{r str_count-solution, exercise.solution_eval=FALSE, eval="str_c-solution"}
+#count how many times the words science, model and data appears.
+
+df <- tibble(
+  text
+)
+
+df |> 
+  transmute(
+    science= str_count(word, pattern = "S|science"),
+    model=str_count(word, pattern = "M|models?"),
+    data=str_count(word, pattern = "D|data")
+  ) 
+```
+
+
+### str_strip
+
+splits a strong into pieces 
+
+
+```{r str_split, exercise=TRUE, eval="str_c-solution"}
+# split the text above into pieces based on word boundaries
+
+```
+
+```{r str_split-solution, exercise.solution_eval=FALSE, eval="str_c-solution"}
+# split the text above into pieces based on word boundaries and call it text
+
+text <- text |> 
+  str_split(boundary("word"))
+
+text <- text[[1]]
+
+
+```
+### str_detect
+
+Detects the presence or absence of a pattern in string.
+
+```{r str_detect, exercise=TRUE, eval="str_split-solution"}
+#Detect the presence of the words data and science evaluate to true.
+
+
+```
+
+```{r str_detect-solution, exercise.solution_eval=FALSE, eval="str_split-solution"}
+# Detect the presence of the words data and science evaluate to true.
+
+text |> 
+  str_detect(pattern = "D|data|S|science")
+```
+
